@@ -1,0 +1,35 @@
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0, ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3307/db_0?serverTimezone=UTC&useSSL=false
+        username: root
+        password: root
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3308/db_1?serverTimezone=UTC&useSSL=false
+        username: root
+        password: root
+    rules:
+      sharding:
+        tables:
+          t_order:
+            actual-data-nodes: ds${0..1}.t_order
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: database-inline
+        sharding-algorithms:
+          database-virtual-slots:
+            type: BOUNDARY_RANGE
+            props:
+              sharding-ranges: 0, 512, 1024 # Slot boundaries
+              sharding-column: user_id
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
